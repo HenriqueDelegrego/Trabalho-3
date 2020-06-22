@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body style="text-align: center;">
+
+    <div class="container">
+
+
+        <div id="Adicionar-Empregado">
+            <div class="Titulo">
+                <h2>Adicionando Empregado</h2>
+            </div>
+            <div class="row field">
+                <div class="col-3">
+                    <label>Nome: </label>
+                </div>
+                <div class="col-9">
+                    <input class="widde" id="addNome" type="text">
+                </div>
+            </div>
+            <div class="row field">
+                <div class="col-3">
+                    <label>Salário: </label>
+                </div>
+                <div class="col-9">
+                    <input class="widde" id="addSalario" type="number">
+                </div>
+            </div>
+            <div class="row field">
+                <div class="col-3">
+                    <label>Idade: </label>
+                </div>
+                <div class="col-9">
+                    <input class="widde" id="addIdade" type="number">
+                </div>
+            </div>
+            <div class="row field">
+                <div class="col-3">
+                    <label>Avatar: </label>
+                </div>
+                <div class="col-9">
+                    <input class="widde" id="addAvatar" type="text">
+                </div>
+            </div>
+            <div class="row field">
+                <div class="col-6">
+                    <input onclick="addEmpregado()" type="button" class="button" value="Salvar">
+                </div>
+                <div class="col-6">
+                    <input onclick="limparEdit()" type="button" class="button" value="Cancelar">
+                </div>
+            </div>
+        </div>
+
+
+        <div id="Editar-Empregado">
+            <div class="Titulo">
+                <h2>Editando Empregado</h2>
+            </div>
+            <div class="row field">
+                <div class="col-3">
+                    <label>Nome: </label>
+                </div>
+                <div class="col-9">
+                    <input class="widde" id="editNome" type="text">
+                </div>
+            </div>
+            <div class="row field">
+                <div class="col-3">
+                    <label>Salário: </label>
+                </div>
+                <div class="col-9">
+                    <input class="widde" id="editSalario" type="number">
+                </div>
+            </div>
+            <div class="row field">
+                <div class="col-3">
+                    <label>Idade: </label>
+                </div>
+                <div class="col-9">
+                    <input class="widde" id="editIdade" type="number">
+                </div>
+            </div>
+            <div class="row field">
+                <div class="col-3">
+                    <label>Avatar: </label>
+                </div>
+                <div class="col-9">
+                    <input class="widde" id="editAvatar" type="text">
+                </div>
+            </div>
+            <div class="row field">
+                <div class="col-6">
+                    <input id="submitEditar" type="button" class="button" value="Salvar">
+                </div>
+                <div class="col-6">
+                    <input onclick="limparEdit()" type="button" class="button" value="Cancelar">
+                </div>
+            </div>
+        </div>
+
+        <table class="widde">
+
+            <thead>
+
+                <tr>
+                    <th>ID:</th>
+                    <th>IMAGEM:</th>
+                    <th>NOME:</th>
+                    <th>SALÁRIO:</th>
+                    <th>IDADE:</th>
+                    <th>AÇÕES:</th>
+                </tr>
+
+            </thead>
+            <tbody id="conteudoTabela">
+                <tr>
+
+                </tr>
+            </tbody>
+
+
+        </table>
+    </div>
+
+    <script>
+
+        document.getElementById("Editar-Empregado").style.display = "none";
+
+        var tBody = document.getElementById("conteudoTabela");
+        var table = " ";
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    var objetoRetornado = JSON.parse(this.responseText);
+                    for (var i = 0; i < objetoRetornado.data.length; i++) {
+                        table = table +
+                            "<tr><td>" + objetoRetornado.data[i].id + "</td><td>" +
+                            "<img class='imagem' src=" + objetoRetornado.data[i].profile_image + ">" + "</td><td>" +
+                            objetoRetornado.data[i].employee_name + "</td><td>" +
+                            objetoRetornado.data[i].employee_salary + "</td><td>" +
+                            objetoRetornado.data[i].employee_age + "</td><td>" +
+
+                            `<label style="cursor: pointer; color:blue;" onclick='changeToEdit ("` +
+                            objetoRetornado.data[i].id + `","` +
+                            objetoRetornado.data[i].employee_name + `","` +
+                            objetoRetornado.data[i].employee_salary + `","` +
+                            objetoRetornado.data[i].employee_age + `","` +
+                            objetoRetornado.data[i].profile_image + `")'>Editar</label> ` + "<label class='espaco'> | </label>" +
+
+
+
+                            "<label style = 'cursor: pointer; color:blue;' onclick=excluiEmpregado('" + objetoRetornado.data[i].id + "','" + objetoRetornado.data[i].employee_name + "')>Excluir</label>" + "</td></tr>";
+                    }
+                    tBody.innerHTML = table;
+                }
+            }
+        };
+        xhttp.open("GET", "http://rest-api-employees.jmborges.site/api/v1/employees", true);
+        xhttp.send();
+
+
+
+        function atualizarTabela() {
+
+            var tBody = document.getElementById("conteudoTabela");
+            var table = " ";
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                    if (this.status == 200) {
+                        var objetoRetornado = JSON.parse(this.responseText);
+                        for (var i = 0; i < objetoRetornado.data.length; i++) {
+                            table = table +
+                                "<tr><td>" + objetoRetornado.data[i].id + "</td><td>" +
+                                "<img class='imagem' src=" + objetoRetornado.data[i].profile_image + ">" + "</td><td>" +
+                                objetoRetornado.data[i].employee_name + "</td><td>" +
+                                objetoRetornado.data[i].employee_salary + "</td><td>" +
+                                objetoRetornado.data[i].employee_age + "</td><td>" +
+
+                                `<label style="cursor: pointer; color: blue;" onclick='changeToEdit ("` +
+                                objetoRetornado.data[i].id + `","` +
+                                objetoRetornado.data[i].employee_name + `","` +
+                                objetoRetornado.data[i].employee_salary + `","` +
+                                objetoRetornado.data[i].employee_age + `","` +
+                                objetoRetornado.data[i].profile_image + `")'>Editar</label> ` + "<label class='espaco'> | </label>" +
+
+
+
+                                "<label style = 'cursor: pointer; color: blue;' onclick=excluiEmpregado('" + objetoRetornado.data[i].id + "','" + objetoRetornado.data[i].employee_name + "')>Excluir</label>" + "</td></tr>";
+                        }
+                        tBody.innerHTML = table;
+                    }
+                }
+            };
+            xhttp.open("GET", "http://rest-api-employees.jmborges.site/api/v1/employees", true);
+            xhttp.send();
+
+        }
+
+
+        function changeToEdit(id, nome, salario, idade, imagem) {
+            document.getElementById("Editar-Empregado").style.display = "block";
+            document.getElementById("Adicionar-Empregado").style.display = "none";
+
+            document.getElementById("editNome").value = nome;
+            document.getElementById("editSalario").value = salario;
+            document.getElementById("editIdade").value = idade;
+            document.getElementById("editAvatar").value = imagem;
+            document.getElementById("submitEditar").setAttribute("onclick", "editarEmpregado(`" + id + "`)");
+        }
+
+        function addEmpregado() {
+
+            var nome = document.getElementById('addNome').value;
+            var salario = document.getElementById('addSalario').value;
+            var idade = document.getElementById('addIdade').value;
+            var avatar = document.getElementById('addAvatar').value;
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                    if (this.status == 200) {
+                        var objetoRetornado = JSON.parse(this.responseText);
+                        atualizarTabela();
+                        alert("Empregado adicionado com sucesso");
+                        limparAdd();
+                    }
+                }
+            };
+            xhttp.open("POST", "http://rest-api-employees.jmborges.site/api/v1/create", true);
+            xhttp.setRequestHeader('Content-type', 'application/json');
+
+            var novoEmp = {
+                name: nome,
+                salary: salario,
+                age: idade,
+                profile_image: avatar
+            };
+            xhttp.send(JSON.stringify(novoEmp));
+
+        }
+
+
+        function limparEdit() {
+            document.getElementById("editNome").value = " ";
+            document.getElementById("editSalario").value = " ";
+            document.getElementById("editIdade").value = " ";
+            document.getElementById("editAvatar").value = " ";
+
+            document.getElementById("Editar-Empregado").style.display = "none";
+            document.getElementById("Adicionar-Empregado").style.display = "block";
+
+        }
+
+
+
+        
+        function limparAdd() {
+            document.getElementById("addNome").value = " ";
+            document.getElementById("addSalario").value = " ";
+            document.getElementById("addIdade").value = " ";
+            document.getElementById("addAvatar").value = " ";
+
+            document.getElementById("Editar-Empregado").style.display = "none";
+            document.getElementById("Adicionar-Empregado").style.display = "block";
+
+        }
+
+
+
+        function excluiEmpregado(id, nome) {
+            var confirmado = confirm("Deseja excluir: " + nome);
+            if (confirmado == true) {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4) {
+                        if (this.status == 200) {
+                            var objetoRetornado = JSON.parse(this.responseText);
+                            if (objetoRetornado.status == "success") {
+                                alert("Empregado excluído com sucesso.");
+                                atualizarTabela();
+                            } else {
+                                alert("Ocorreu um erro, tente novamente");
+                            }
+                        }
+                    }
+                };
+                xhttp.open("DELETE", "http://rest-api-employees.jmborges.site/api/v1/delete/" + id, true);
+                xhttp.setRequestHeader('Content-type', 'application/json');
+                xhttp.send();
+
+            }
+
+        }
+
+
+
+        function editarEmpregado(id) {
+            var nome = document.getElementById("editNome").value;
+            var salario = document.getElementById("editSalario").value;
+            var idade = document.getElementById("editIdade").value;
+            var avatar = document.getElementById("editAvatar").value;
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                    if (this.status == 200) {
+                        var objetoRetornado = JSON.parse(this.responseText);
+                        atualizarTabela();
+
+                    }
+                }
+            };
+            xhttp.open("PUT", "http://rest-api-employees.jmborges.site/api/v1/update/" + id, true);
+            xhttp.setRequestHeader('Content-type', 'application/json');
+
+            var novoEmp = {
+                name: nome,
+                salary: salario,
+                age: idade,
+                profile_image: avatar
+            };
+
+            xhttp.send(JSON.stringify(novoEmp));
+
+
+            document.getElementById("Editar-Empregado").style.display = "none";
+            document.getElementById("Adicionar-Empregado").style.display = "block";
+        }
+
+    </script>
+
+
+
+
+</body>
+
+</html>
